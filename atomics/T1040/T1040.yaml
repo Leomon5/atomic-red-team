@@ -440,3 +440,33 @@ atomic_tests:
       rm -f #{program_path}
     name: bash
     elevation_required: true
+- name: Packet Capture Linux socket AF_PACKET,SOCK_RAW with BPF filter for UDP with sudo
+  description: |
+    Captures packets with domain=AF_PACKET,type=SOCK_RAW for a few seconds.
+    Sets a BPF filter on the socket to filter for UDP traffic.
+  supported_platforms:
+  - linux
+  input_arguments:
+    csource_path:
+      description: Path to C program source
+      type: string
+      default: PathToAtomicsFolder/T1040/src/linux_pcapdemo.c
+    program_path:
+      description: Path to compiled C program
+      type: string
+      default: /tmp/t1040_linux_pcapdemo
+  dependency_executor_name: bash
+  dependencies:
+  - description: |
+      compile C program
+    prereq_command: |
+      if [ -f "#{program_path}" ]; then exit 0; else exit 1; fi
+    get_prereq_command: |
+      cc #{csource_path} -o #{program_path}
+  executor:
+    command: |
+      sudo #{program_path} -a -f -t 3
+    cleanup_command: |
+      rm -f #{program_path}
+    name: bash
+    elevation_required: true
